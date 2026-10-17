@@ -1,0 +1,9 @@
+{
+  "dataset": "PAD-UFES-20 (Bare Smartphone Skin Images + 7 Clinical Symptom Features)",
+  "total_samples_evaluated": 2298,
+  "validation_accuracy": 0.8457,
+  "validation_sensitivity": 0.8341,
+  "validation_specificity": 0.856,
+  "expected_calibration_error_ece": 0.0314,
+  "onnx_model_path": "models/kayasetu_multimodal.onnx"
+}

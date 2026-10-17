@@ -1,0 +1,15 @@
+{
+  "id": "estrick/kayasetu-phc-multimodal-trainer",
+  "title": "kayasetu-phc-multimodal-trainer",
+  "code_file": "train_kayasetu_multimodal.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "mahdavi1202/skin-cancer"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}
