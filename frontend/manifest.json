@@ -1,0 +1,11 @@
+{
+  "name": "KayaSetu PHC — Rural Skin & Lesion Screening Aid",
+  "short_name": "KayaSetu PHC",
+  "description": "Offline-capable bare-smartphone multimodal skin & ulcer referral triage aid for rural Primary Health Centres and ASHA workers (DevHack 2026 PS 3.1). Decision-support aid only — not a diagnostic device.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7f9",
+  "theme_color": "#0f172a",
+  "lang": "en",
+  "icons": []
+}

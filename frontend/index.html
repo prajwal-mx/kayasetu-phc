@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kayasetu — Rural PHC Clinical Triage Studio (DevHack 2026 • PS 3.1)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- TOP EDITORIAL ANNOUNCEMENT BAR (PS 3.1 MANDATORY DISCLAIMER + ONNX STATUS) -->
+  <div class="top-notice-bar no-print" id="disclaimerBanner">
+    <span class="notice-spark">✦</span>
+    <span class="notice-pill">PS 3.1 Decision-Support Aid</span>
+    <span class="notice-text">
+      <strong>Not a diagnostic device:</strong> Clinical referral decision-support for Rural PHC &amp; ASHA workers. Final diagnosis requires a registered medical practitioner.
+    </span>
+    <span class="notice-divider">·</span>
+    <span class="notice-metric" id="topModelMetric">PAD-UFES-20 ONNX (2,298 samples · 84.6% Acc · ECE 0.0314)</span>
+  </div>
+
+  <!-- SARVAM-INSPIRED WARM CREAM-WHITE NAVIGATION HEADER -->
+  <header class="site-header no-print">
+    <div class="header-inner">
+      <div class="brand-lockup">
+        <span class="brand-wordmark">kayasetu</span>
+        <span class="brand-tag">PHC Clinical AI</span>
+      </div>
+      <nav class="header-nav">
+        <a href="#workflowSection" class="nav-link active">Triage Pathway</a>
+        <a href="#visionSection" class="nav-link">Explainable Vision</a>
+        <a href="#metricsSection" class="nav-link">ABCD &amp; Bayesian Math</a>
+        <a href="#unseenTestSection" class="nav-link">Test Unseen Data</a>
+      </nav>
+      <div class="header-cta-group">
+        <button class="btn-pill-light" id="voiceBtn" onclick="speakRecommendation()" title="Read clinical recommendation aloud">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          Voice Readout
+        </button>
+        <button class="btn-pill-dark" id="printSlipBtn" onclick="openReferralSlipModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print Referral Slip
+        </button>
+      </div>
+    </div>
+
+    <!-- ARCHITECTURAL FULL-WIDTH CASE SELECTOR STRIP (MODELED ON SARVAM'S TAB BAR) -->
+    <div class="case-selector-strip" id="sampleButtons">
+      <!-- Populated dynamically from /api/v1/samples + Custom Upload Slot -->
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="workspace-container no-print">
+    <!-- LEFT SIDEBAR: PATIENT INTAKE, BARE-SMARTPHONE UPLOAD & 7 SYMPTOM TOGGLES -->
+    <aside class="intake-sidebar">
+      <div class="surface-card">
+        <div class="card-eyebrow">Step 01 · Bare-Smartphone Input</div>
+        <h2 class="serif-heading">Patient Skin Capture</h2>
+        <p class="card-subcopy">No dermatoscope or clip-on lens required. Standard smartphone photo from 15 cm distance.</p>
+
+        <label class="upload-dropzone" for="imageInput" id="dropzoneLabel">
+          <input type="file" id="imageInput" accept="image/*" />
+          <div class="dropzone-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div class="dropzone-title" id="uploadFileName">Upload Unseen Skin Photo</div>
+          <div class="dropzone-hint">JPG / PNG · Auto-runs Laplacian blur &amp; glare check</div>
+        </label>
+
+        <!-- UNSEEN DATA PERTURBATION SANDBOX (TEST GENERALIZATION IN 1 CLICK) -->
+        <div class="unseen-sandbox" id="unseenTestSection">
+          <div class="sandbox-label">Test Unseen Perturbations on Current Photo:</div>
+          <div class="sandbox-pills">
+            <button type="button" class="chip-action" onclick="applyUnseenPerturbation('darker_skin')" title="Simulate darker Fitzpatrick V/VI melanin tone">
+              + Darker Melanin Shift
+            </button>
+            <button type="button" class="chip-action" onclick="applyUnseenPerturbation('glare_flash')" title="Simulate harsh LED flash glare spot">
+              + Flash Glare Spot
+            </button>
+            <button type="button" class="chip-action" onclick="applyUnseenPerturbation('camera_shake')" title="Simulate out-of-focus hand shake">
+              + Camera Blur Shake
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="surface-card">
+        <div class="card-eyebrow">Step 02 · ASHA 30-Second Checklist</div>
+        <div class="section-header-row">
+          <h2 class="serif-heading">Clinical Symptoms</h2>
+          <button type="button" class="text-link-btn" onclick="clearAllSymptoms()">Clear all</button>
+        </div>
+        <p class="card-subcopy">Toggling any indicator below immediately recalculates the Bayesian posterior risk.</p>
+
+        <div class="age-field-row">
+          <div>
+            <label for="ageInput" class="field-title">Patient Age (Years)</label>
+            <span class="field-meta">Age &ge; 50 adds +0.40 log-odds prior</span>
+          </div>
+          <input type="number" id="ageInput" class="age-input" value="61" min="1" max="110" />
+        </div>
+
+        <div class="symptom-toggle-list">
+          <label class="symptom-row">
+            <input type="checkbox" id="chk_bleeding" checked />
+            <span class="symptom-name">Spontaneous Bleeding / Oozing</span>
+            <span class="symptom-weight pos">+1.35</span>
+          </label>
+          <label class="symptom-row">
+            <input type="checkbox" id="chk_rapid_growth" checked />
+            <span class="symptom-name">Rapid Growth / Border Change</span>
+            <span class="symptom-weight pos">+1.10</span>
+          </label>
+          <label class="symptom-row">
+            <input type="checkbox" id="chk_pain_ulcer" checked />
+            <span class="symptom-name">Painful / Tender / Open Ulcer</span>
+            <span class="symptom-weight pos">+0.85</span>
+          </label>
+          <label class="symptom-row">
+            <input type="checkbox" id="chk_diabetes" checked />
+            <span class="symptom-name">Diabetes / High Blood Sugar</span>
+            <span class="symptom-weight pos">+0.75</span>
+          </label>
+          <label class="symptom-row">
+            <input type="checkbox" id="chk_duration_long" checked />
+            <span class="symptom-name">Unhealed Duration &gt; 4 Weeks</span>
+            <span class="symptom-weight pos">+0.65</span>
+          </label>
+          <label class="symptom-row">
+            <input type="checkbox" id="chk_fever" />
+            <span class="symptom-name">Fever / Regional Lymph Swelling</span>
+            <span class="symptom-weight pos">+0.55</span>
+          </label>
+          <label class="symptom-row">
+            <input type="checkbox" id="chk_itching" />
+            <span class="symptom-name">Prominent Itching (Tinea / Scabies)</span>
+            <span class="symptom-weight neg">-0.20</span>
+          </label>
+        </div>
+
+        <button class="btn-pill-dark full-width" id="runScreenBtn" onclick="runCurrentScreening()">
+          Re-Run Multimodal PHC Screening
+        </button>
+      </div>
+    </aside>
+
+    <!-- RIGHT WORKSPACE: SARVAM-STYLE WORKFLOW NODE GRAPH + 4-STAGE VISION + ABCD MATH -->
+    <section class="results-workspace">
+      <!-- SECTION 1: SARVAM-STYLE INTERACTIVE BRANCHING TRIAGE PATHWAY -->
+      <div class="surface-card workflow-card" id="workflowSection">
+        <div class="workflow-top-header">
+          <div>
+            <div class="card-eyebrow" id="caseIdDisplay">CASE ID: PHC-LOADING · ONNX ACTIVE</div>
+            <h2 class="serif-heading-lg">Build the clinical path every referral should take.</h2>
+            <p class="card-subcopy">
+              Combines calibrated MobileNetV3 ONNX visual priors, melanin-compensated ABCD geometry, and 7 clinical symptom log-odds to route patients with explicit specialist thresholds.
+            </p>
+          </div>
+
+          <div class="score-hero-box" id="referralCard">
+            <span class="tier-pill" id="tierBadge">EVALUATING...</span>
+            <div class="score-number" id="riskHeadline">--%</div>
+            <div class="score-caption">Specialist Referral Threshold: <strong>&ge; 65.0%</strong></div>
+          </div>
+        </div>
+
+        <!-- PROGRESS BAR WITH EXPLICIT 35% AND 65% THRESHOLD MARKERS -->
+        <div class="threshold-meter-wrap">
+          <div class="threshold-labels">
+            <span>0% · Routine PHC Care</span>
+            <span class="marker-35">35% · PHC MO / eSanjeevani</span>
+            <span class="marker-65">65% · Refer to Specialist</span>
+            <span>100%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="riskProgressFill" style="width: 0%"></div>
+            <div class="threshold-line" style="left: 35%"></div>
+            <div class="threshold-line strong" style="left: 65%"></div>
+          </div>
+          <p class="clinical-guidance-copy" id="recommendationText"></p>
+        </div>
+
+        <!-- SARVAM SCREENSHOT-2 INSPIRED SAGE CANVAS WITH CONNECTED WORKFLOW NODES -->
+        <div class="sage-workflow-canvas">
+          <div class="workflow-nodes-grid">
+            <!-- LEFT SOURCE NODE -->
+            <div class="wf-source-node">
+              <div class="wf-node-header">
+                <span class="wf-node-tag">Multimodal Intake Node</span>
+                <span class="wf-dots">•••</span>
+              </div>
+              <div class="wf-node-title" id="wfSourceTitle">Bare-Phone ROI + Symptoms</div>
+              <div class="wf-telemetry-rows">
+                <div class="wf-port-row">
+                  <span>Visual Prior (ONNX + ABCD)</span>
+                  <strong id="wfVisualPrior">--%</strong>
+                </div>
+                <div class="wf-port-row">
+                  <span>Symptom Log-Odds Shift (Δℓ)</span>
+                  <strong id="wfClinShift">--</strong>
+                </div>
+                <div class="wf-port-row">
+                  <span>Skin Tone (ITA° Calibration)</span>
+                  <strong id="wfSkinTone">--</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- CENTER SVG BEZIER CONNECTORS -->
+            <div class="wf-connector-col" aria-hidden="true">
+              <svg viewBox="0 0 160 240" preserveAspectRatio="none" class="wf-svg">
+                <path id="pathHigh" d="M 0 120 C 70 120, 75 40, 160 40" class="wf-path" />
+                <path id="pathMod" d="M 0 120 C 70 120, 90 120, 160 120" class="wf-path" />
+                <path id="pathLow" d="M 0 120 C 70 120, 75 200, 160 200" class="wf-path" />
+              </svg>
+            </div>
+
+            <!-- RIGHT OUTCOME NODES -->
+            <div class="wf-outcomes-col">
+              <div class="wf-outcome-node" id="nodeHigh">
+                <div class="wf-outcome-icon red">⚕</div>
+                <div>
+                  <div class="wf-outcome-title">Refer to Specialist (&ge; 65%)</div>
+                  <div class="wf-outcome-sub">Transfer to District Dermatologist (Wenlock Hospital) for biopsy</div>
+                </div>
+              </div>
+
+              <div class="wf-outcome-node" id="nodeMod">
+                <div class="wf-outcome-icon amber">🩺</div>
+                <div>
+                  <div class="wf-outcome-title">PHC Medical Officer (35–64%)</div>
+                  <div class="wf-outcome-sub">Schedule 48h PHC MO review or eSanjeevani Tele-Dermatology</div>
+                </div>
+              </div>
+
+              <div class="wf-outcome-node" id="nodeLow">
+                <div class="wf-outcome-icon green">✓</div>
+                <div>
+                  <div class="wf-outcome-title">Routine Local Care (&lt; 35%)</div>
+                  <div class="wf-outcome-sub" id="nodeLowSub">Provide hygiene / topical antifungal care &amp; 7-day follow-up</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3-COLUMN TELEMETRY CHECK STRIP BELOW CANVAS (EXACT MATCH TO SARVAM SCREENSHOT 2) -->
+        <div class="workflow-footer-checks">
+          <div class="check-col">
+            <span class="check-dot" id="dotQuality">✓</span>
+            <div>
+              <strong id="chipQuality">Camera Quality Gate: Checking...</strong>
+              <span>Laplacian sharpness (&sigma;&sup2; &ge; 35) &amp; HSV glare gate</span>
+            </div>
+          </div>
+          <div class="check-col">
+            <span class="check-dot">✓</span>
+            <div>
+              <strong id="chipSkinTone">Fitzpatrick Skin Tone: --</strong>
+              <span>Perilesional CIE-L*a*b* Individual Typology Angle (ITA&deg;)</span>
+            </div>
+          </div>
+          <div class="check-col">
+            <span class="check-dot">✓</span>
+            <div>
+              <strong id="chipErythema">Melanin Compensation: --</strong>
+              <span>Prevents false negatives on Indian Types IV–VI skin</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: 4-STAGE EXPLAINABLE COMPUTER VISION PIPELINE -->
+      <div class="surface-card" id="visionSection">
+        <div class="section-header-row">
+          <div>
+            <div class="card-eyebrow">Explainable Computer Vision Pipeline</div>
+            <h2 class="serif-heading">Four-Stage Visual Inspection</h2>
+          </div>
+          <span class="mono-badge" id="inferenceModeBadge">ONNX + CIE-L*a*b* Active</span>
+        </div>
+
+        <div class="vision-grid-four">
+          <figure class="vision-card">
+            <div class="vision-img-wrap"><img id="imgOrig" alt="Raw smartphone capture" /></div>
+            <figcaption>
+              <span class="step-num">01</span>
+              <div>
+                <strong>Raw Smartphone Capture</strong>
+                <small>Unmodified 15 cm macroscopic input</small>
+              </div>
+            </figcaption>
+          </figure>
+
+          <figure class="vision-card">
+            <div class="vision-img-wrap"><img id="imgNorm" alt="Gray-World and CLAHE normalized" /></div>
+            <figcaption>
+              <span class="step-num">02</span>
+              <div>
+                <strong>Gray-World + L*a*b* CLAHE</strong>
+                <small>Illuminant-invariant lightness equalization</small>
+              </div>
+            </figcaption>
+          </figure>
+
+          <figure class="vision-card">
+            <div class="vision-img-wrap"><img id="imgSeg" alt="Otsu geodesic boundary" /></div>
+            <figcaption>
+              <span class="step-num">03</span>
+              <div>
+                <strong>Otsu Geodesic Boundary</strong>
+                <small>Isolated lesion contour vs. normal skin ring</small>
+              </div>
+            </figcaption>
+          </figure>
+
+          <figure class="vision-card">
+            <div class="vision-img-wrap"><img id="imgHeat" alt="Saliency attention heatmap" /></div>
+            <figcaption>
+              <span class="step-num">04</span>
+              <div>
+                <strong>Saliency / Attention CAM</strong>
+                <small>High-risk erythema &amp; pigment heterogeneity</small>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- SECTION 3: ABCD MORPHOLOGICAL METRICS & BAYESIAN LOG-ODDS CONTRIBUTIONS -->
+      <div class="metrics-two-col" id="metricsSection">
+        <div class="surface-card">
+          <div class="card-eyebrow">Geometric &amp; Chromatic Biomarkers</div>
+          <h2 class="serif-heading">ABCD Lesion Profile</h2>
+          <ul class="metric-bars-list" id="abcdList"></ul>
+        </div>
+
+        <div class="surface-card">
+          <div class="card-eyebrow">Transparent Additive Explainability</div>
+          <h2 class="serif-heading">Bayesian Log-Odds Factors</h2>
+          <ul class="metric-bars-list" id="contribList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- PRINTABLE PHC SPECIALIST REFERRAL SLIP MODAL (ITEM #2 FLAGGED BY AGENT — NOW COMPLETE) -->
+  <div class="modal-backdrop hidden" id="referralModal">
+    <div class="referral-slip-sheet">
+      <div class="modal-actions no-print">
+        <button class="btn-pill-light" onclick="closeReferralSlipModal()">Close Preview</button>
+        <button class="btn-pill-dark" onclick="window.print()">🖨️ Print Official PHC Referral Slip</button>
+      </div>
+
+      <div class="slip-header">
+        <div>
+          <div class="slip-kicker">PRIMARY HEALTH CENTRE (PHC) · DAKSHINA KANNADA / KARNATAKA</div>
+          <h2>AI-Assisted Dermatology &amp; Ulcer Triage Referral Slip</h2>
+          <p>Generated via <strong>KayaSetu PHC (DevHack 2026 · PS 3.1)</strong></p>
+        </div>
+        <div class="slip-meta-box">
+          <div><strong>Case ID:</strong> <span id="slipCaseId">--</span></div>
+          <div><strong>Date:</strong> <span id="slipDate">--</span></div>
+          <div><strong>Patient Age:</strong> <span id="slipAge">--</span> yrs</div>
+        </div>
+      </div>
+
+      <div class="slip-outcome-banner" id="slipOutcomeBanner">
+        <div>
+          <div class="slip-tier-label" id="slipTier">--</div>
+          <div class="slip-action-text" id="slipRecommendation">--</div>
+        </div>
+        <div class="slip-score-big" id="slipScore">--%</div>
+      </div>
+
+      <div class="slip-grid">
+        <div class="slip-box">
+          <h4>Skin-Tone &amp; Camera Telemetry</h4>
+          <p id="slipSkinTelemetry">--</p>
+          <h4 style="margin-top:0.75rem;">ABCD Morphological Scores</h4>
+          <p id="slipAbcdSummary">--</p>
+        </div>
+        <div class="slip-box">
+          <h4>Active Clinical Symptoms &amp; Log-Odds</h4>
+          <ul id="slipSymptomsList"></ul>
+        </div>
+        <div class="slip-images">
+          <div>
+            <img id="slipImgOrig" alt="Lesion Photo" />
+            <span>Normalized ROI</span>
+          </div>
+          <div>
+            <img id="slipImgHeat" alt="Attention Map" />
+            <span>Saliency Heatmap</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="slip-signatures">
+        <div>
+          <div class="sig-line"></div>
+          <span>ASHA Worker / PHC Screening Staff Signature</span>
+        </div>
+        <div>
+          <div class="sig-line"></div>
+          <span>PHC Medical Officer / Specialist Verification</span>
+        </div>
+      </div>
+
+      <div class="slip-disclaimer" id="slipDisclaimer">
+        DECISION-SUPPORT AID ONLY — NOT A DIAGNOSTIC DEVICE. Designed to assist rural PHC and ASHA workers in referral triage. Final diagnosis must be performed by a registered medical practitioner.
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
