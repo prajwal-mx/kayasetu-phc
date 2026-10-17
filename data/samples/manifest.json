@@ -1,0 +1,66 @@
+[
+  {
+    "id": "case_high_scc_ulcer",
+    "title_en": "Case 1: High-Risk Ulcerated Lesion (Farmer, 61y — Bantwal PHC)",
+    "title_kn": "ಪ್ರಕರಣ 1: ತೀವ್ರ ಅಪಾಯದ ಒಡೆಯುತ್ತಿರುವ ಹುಣ್ಣು (ರೈತ, 61 ವರ್ಷ)",
+    "image_url": "/samples/case_high_scc_ulcer.png",
+    "symptoms": {
+      "age": 61,
+      "bleeding": true,
+      "rapid_growth": true,
+      "pain_ulcer": true,
+      "duration_long": true,
+      "diabetes_immunocomp": true,
+      "fever_systemic": false,
+      "itching": false
+    }
+  },
+  {
+    "id": "case_mod_infective",
+    "title_en": "Case 2: Moderate Non-Healing Plaque (Fisherwoman, 47y — Ullal PHC)",
+    "title_kn": "ಪ್ರಕರಣ 2: ಮಧ್ಯಮ ಅಪಾಯದ ವಾಸಿಯಾಗದ ಚರ್ಮದ ಕಲೆ (47 ವರ್ಷ)",
+    "image_url": "/samples/case_mod_infective.png",
+    "symptoms": {
+      "age": 47,
+      "bleeding": false,
+      "rapid_growth": false,
+      "pain_ulcer": true,
+      "duration_long": true,
+      "diabetes_immunocomp": false,
+      "fever_systemic": false,
+      "itching": true
+    }
+  },
+  {
+    "id": "case_low_benign_tinea",
+    "title_en": "Case 3: Low-Risk Superficial / Benign Patch (Student, 22y — Puttur PHC)",
+    "title_kn": "ಪ್ರಕರಣ 3: ಕಡಿಮೆ ಅಪಾಯದ ಸಾಮಾನ್ಯ ಚರ್ಮದ ತುರಿಕೆ (22 ವರ್ಷ)",
+    "image_url": "/samples/case_low_benign_tinea.png",
+    "symptoms": {
+      "age": 22,
+      "bleeding": false,
+      "rapid_growth": false,
+      "pain_ulcer": false,
+      "duration_long": false,
+      "diabetes_immunocomp": false,
+      "fever_systemic": false,
+      "itching": true
+    }
+  },
+  {
+    "id": "case_blurry_reject",
+    "title_en": "Case 4: Camera Blur Quality Gate Test (Out-of-Focus Handshake Photo)",
+    "title_kn": "ಪ್ರಕರಣ 4: ಮಂದವಾದ ಫೋಟೋ ಗುಣಮಟ್ಟ ಪರೀಕ್ಷೆ (ಮರು-ಫೋಟೋ ಎಚ್ಚರಿಕೆ)",
+    "image_url": "/samples/case_blurry_reject.png",
+    "symptoms": {
+      "age": 38,
+      "bleeding": false,
+      "rapid_growth": false,
+      "pain_ulcer": false,
+      "duration_long": false,
+      "diabetes_immunocomp": false,
+      "fever_systemic": false,
+      "itching": false
+    }
+  }
+]
