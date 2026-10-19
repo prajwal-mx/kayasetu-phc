@@ -23,3 +23,6 @@ Thumbs.db
 
 # Logs & local artifacts
 *.log
+
+# Local test images (not committed)
+test_images/
